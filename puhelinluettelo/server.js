@@ -22,9 +22,9 @@ app.get("/api/persons/:id", (req, res) => {
     const person = people.filter(person => person.id == id)
 
     if(!person.length){
-        return res.status(404).send("No such person found");
+        return res.sendStatus(404).send("No such person found");
     }else{
-        return res.status(200).send(person[0]);
+        return res.sendStatus(200).send(person[0]);
     }
 })
 
@@ -32,9 +32,19 @@ app.post("/api/persons", (req, res) => {
     const rndNumber = Math.floor(Math.random()*100000);
     const body = req.body;
     body.id = rndNumber;
-    console.log(body)
-    data.push(body);
-    return res.status(200).send(body)
+
+    if(!body.name.length || !body.number.length){
+        return res.status(404).send("You need to give the number and the name");
+    }else {
+        if(data.find((person) => person.name == body.name)){
+            console.log("person was found")
+            return res.send("person is already in the list")
+        }else{
+            console.log("person was not found")
+            data.push(body);
+            return res.sendStatus(200).send(body)
+        }
+    }
 })
 
 

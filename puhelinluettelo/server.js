@@ -1,8 +1,9 @@
 const express = require('express');
 const fs = require('fs');
 const app = express();
+const db = require('./db')
 
-const data = JSON.parse(fs.readFileSync('db.json'));
+const data = db;
 const time = Date().toString();
 
 
@@ -16,12 +17,14 @@ app.get("/api/persons", (req, res) => {
 
 app.get("/api/persons/:id", (req, res) => {
     const id = req.params.id
-    console.log(id)
     const people = data.persons
-    console.log(people)
-    const person = people.filter((person) => person.id == id)
-    console.log(person[0])
-    return res.send(person[0])
+    const person = people.filter(person => person.id == id)
+
+    if(!person.length){
+        return res.status(404).send("No such person found")
+    }else{
+        return res.status(200).send(person[0])
+    }
 })
 
 app.listen(3001, () => {

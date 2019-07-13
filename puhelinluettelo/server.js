@@ -3,10 +3,15 @@ const app = express();
 const db = require('./db');
 const morgan = require('morgan');
 const bodyPareser = require('body-parser');
+const cors = require('cors')
 const port = process.env.PORT || 3001
 
 app.use(bodyPareser.json());
-app.use(morgan('tiny'));
+app.use(cors());
+morgan.token('post', function (req, res) { return JSON.stringify(req.body)})
+app.use(morgan(':method :url :status :response-time ms :post', {
+    skip: function (req, res) { return req.method != 'POST'}
+}));
 let data = db.persons;
 
 
@@ -42,7 +47,8 @@ app.post("/api/persons", (req, res) => {
             return res.send("person is already in the list");
         }else{
             data.push(body);
-            return res.sendStatus(200);
+            //console.log(body)
+            return res.send(body);
         }
     }
 })

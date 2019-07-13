@@ -1,10 +1,17 @@
 const express = require('express');
-const fs = require('fs');
 const app = express();
 const db = require('./db');
-const bodyPareser = require('body-parser')
+const morgan = require('morgan');
+const bodyPareser = require('body-parser');
+const cors = require('cors')
+const port = process.env.PORT || 3001
 
 app.use(bodyPareser.json());
+app.use(cors());
+morgan.token('post', function (req, res) { return JSON.stringify(req.body)})
+app.use(morgan(':method :url :status :response-time ms :post', {
+    skip: function (req, res) { return req.method != 'POST'}
+}));
 let data = db.persons;
 
 
@@ -22,9 +29,9 @@ app.get("/api/persons/:id", (req, res) => {
     const person = people.filter(person => person.id == id)
 
     if(!person.length){
-        return res.status(404).send("No such person found");
+        return res.sendStatus(404);
     }else{
-        return res.status(200).send(person[0]);
+        return res.send(person[0]);
     }
 })
 
@@ -32,9 +39,18 @@ app.post("/api/persons", (req, res) => {
     const rndNumber = Math.floor(Math.random()*100000);
     const body = req.body;
     body.id = rndNumber;
-    console.log(body)
-    data.push(body);
-    return res.status(200).send(body)
+
+    if(!body.name.length || !body.number.length){
+        return res.sendStatus(404);
+    }else {
+        if(data.find((person) => person.name == body.name)){
+            return res.send("person is already in the list");
+        }else{
+            data.push(body);
+            //console.log(body)
+            return res.send(body);
+        }
+    }
 })
 
 
@@ -43,14 +59,13 @@ app.delete("/api/persons/:id", (req, res) =>{
     const people = data;
 
     const filteredPeople = people.filter(person => person.id != id);
-    console.log(filteredPeople)
     data = filteredPeople;
     if(filteredPeople.length === people.length){
-        return res.status(404).send("person not found")    
+        return res.send("person not found")    
     }else{
-    return res.status(200).send(data)
+        return res.send(data)
     }
 })
-app.listen(3001, () => {
+app.listen(port, () => {
     console.log("Piippiip")
 })

@@ -1,10 +1,12 @@
 const express = require('express');
-const fs = require('fs');
 const app = express();
 const db = require('./db');
-const bodyPareser = require('body-parser')
+const morgan = require('morgan');
+const bodyPareser = require('body-parser');
+const port = process.env.PORT || 3001
 
 app.use(bodyPareser.json());
+app.use(morgan('tiny'));
 let data = db.persons;
 
 
@@ -22,9 +24,9 @@ app.get("/api/persons/:id", (req, res) => {
     const person = people.filter(person => person.id == id)
 
     if(!person.length){
-        return res.sendStatus(404).send("No such person found");
+        return res.sendStatus(404);
     }else{
-        return res.sendStatus(200).send(person[0]);
+        return res.send(person[0]);
     }
 })
 
@@ -34,15 +36,13 @@ app.post("/api/persons", (req, res) => {
     body.id = rndNumber;
 
     if(!body.name.length || !body.number.length){
-        return res.status(404).send("You need to give the number and the name");
+        return res.sendStatus(404);
     }else {
         if(data.find((person) => person.name == body.name)){
-            console.log("person was found")
-            return res.send("person is already in the list")
+            return res.send("person is already in the list");
         }else{
-            console.log("person was not found")
             data.push(body);
-            return res.sendStatus(200).send(body)
+            return res.sendStatus(200);
         }
     }
 })
@@ -53,14 +53,13 @@ app.delete("/api/persons/:id", (req, res) =>{
     const people = data;
 
     const filteredPeople = people.filter(person => person.id != id);
-    console.log(filteredPeople)
     data = filteredPeople;
     if(filteredPeople.length === people.length){
-        return res.status(404).send("person not found")    
+        return res.send("person not found")    
     }else{
-    return res.status(200).send(data)
+        return res.send(data)
     }
 })
-app.listen(3001, () => {
+app.listen(port, () => {
     console.log("Piippiip")
 })

@@ -7,6 +7,7 @@ const cors = require('cors')
 const port = process.env.PORT || 3001
 
 app.use(bodyPareser.json());
+app.use(express.static('build'))
 app.use(cors());
 morgan.token('post', function (req, res) { return JSON.stringify(req.body)})
 app.use(morgan(':method :url :status :response-time ms :post', {

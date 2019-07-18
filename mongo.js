@@ -1,31 +1,46 @@
 const mongoose = require('mongoose')
 
-if ( process.argv.length<3 ) {
-  console.log('give password as argument')
+if ( process.argv.length < 3 ) {
+  console.log('You give too little information')
   process.exit(1)
 }
 
+
 const password = process.argv[2]
+const name = process.argv[3]
+const number = process.argv[4]
 
 const url = `mongodb+srv://fullstack:${password}@full-stack-open-daq2p.mongodb.net/phonebook-app?retryWrites=true`
 
 mongoose.connect(url, { useNewUrlParser: true })
 
-const noteSchema = new mongoose.Schema({
-  content: String,
-  date: Date,
-  important: Boolean,
+const personSchema = new mongoose.Schema({
+  name: String,
+  number: String
 })
 
-const Note = mongoose.model('Note', noteSchema)
+const Person = mongoose.model('Person', personSchema)
 
-const note = new Note({
-  content: 'HTML is Easy',
-  date: new Date(),
-  important: true,
+const person = new Person({
+  name,
+  number
 })
 
-note.save().then(response => {
-  console.log('note saved!');
+if(process.argv.length <5 ){
+  Person.find({}).then(result => {
+    console.log("Phonebook")
+      result.forEach(person => {
+        console.log(person.name, person.number)
+      })
+      mongoose.connection.close()
+  })
+}else {
+  person.save().then(response => {
+    console.log(`Added ${response.name} number ${response.number} to phonebook`)
+  console.log(response);
   mongoose.connection.close();
 })
+}
+
+
+

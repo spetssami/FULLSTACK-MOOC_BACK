@@ -52,17 +52,8 @@ app.get("/api/persons", (req, res) => {
 });
 
 app.get("/api/persons/:id", (req, res) => {
-    // const id = req.params.id;
-    // const people = data;
-    // const person = people.filter(person => person.id == id)
-
-    // if(!person.length){
-    //     return res.sendStatus(404);
-    // }else{
-    //     return res.send(person[0]);
-    // }
     Person.findById(req.params.id).then(person => {
-        res.json(person.toJSON())
+        res.json(person.toJSON());
     });  
 })
 
@@ -71,19 +62,21 @@ app.post("/api/persons", (req, res) => {
     const body = req.body;
     body.id = rndNumber;
 
-    const person = new Person({name: body.name, number: body.number})
     if(!body.name.length || !body.number.length){
         return res.status(404).json({err: 'content missing'});
     }else {
-        if(data.find((person) => person.name == body.name)){
-            return res.send("person is already in the list");
-        }else{
-            person.save()
-            //console.log(body)
-            return res.send(body);
-        }
+        Person.find({}).then(result => {
+            if(result.find((person) => person.name == body.name)){
+                res.status(502).json({err: "Person is already found"});
+             }else{
+                const person = new Person({name: body.name, number: body.number});
+                person.save().then(savedPerson => {
+                    res.json(savedPerson.toJSON());
+                });
+            }
+        })
     }
-})
+});
 
 
 app.delete("/api/persons/:id", (req, res) =>{

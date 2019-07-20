@@ -1,11 +1,13 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
 const morgan = require('morgan');
 const bodyPareser = require('body-parser');
 const cors = require('cors');
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
+const Person = require('./models/person');
 
-const port = process.env.PORT || 3001
+const port = process.env.PORT;
 
 app.use(bodyPareser.json());
 app.use(express.static('build'))
@@ -16,29 +18,6 @@ app.use(morgan(':method :url :status :response-time ms :post', {
 }));
 
 
-const url = 'mongodb+srv://fullstack:<PASSWORD>@full-stack-open-daq2p.mongodb.net/phonebook-app?retryWrites=true'
-mongoose.connect(url,  {useNewUrlParser: true })
-    .then(result => {    
-        console.log('connected to MongoDB')  
-        })
-    .catch((error) => {
-        console.log('error connecting to MongoDB:', error.message)  
-        })
-
-const personSchema = new mongoose.Schema({
-    name: String,
-    number: String
-});
-
-personSchema.set('toJSON', {
-    transform: (document, returnedObject) => {
-        returnedObject.id = returnedObject._id.toString()
-        delete returnedObject._id
-        delete returnedObject.__v
-      }
-});
-
-const Person = mongoose.model('Person', personSchema);  
 
 
 app.get("/info", (req, res) => {

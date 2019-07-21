@@ -42,7 +42,7 @@ app.post("/api/persons", (req, res) => {
     body.id = rndNumber;
 
     if(!body.name.length || !body.number.length){
-        return res.status(404).json({err: 'content missing'});
+        return res.status(400).json({err: 'content missing'});
     }else {
         Person.find({}).then(result => {
             if(result.find((person) => person.name == body.name)){
@@ -59,16 +59,11 @@ app.post("/api/persons", (req, res) => {
 
 
 app.delete("/api/persons/:id", (req, res) =>{
-    const id = req.params.id;
-    const people = data;
-
-    const filteredPeople = people.filter(person => person.id != id);
-    data = filteredPeople;
-    if(filteredPeople.length === people.length){
-        return res.send("person not found")    
-    }else{
-        return res.send(data)
-    }
+    Person.findByIdAndRemove(req.params.id)
+    .then(result => {
+      res.status(204).end()
+    })
+    .catch(error => res.status(502).send({err: error}));
 })
 app.listen(port, () => {
     console.log("Piippiip")

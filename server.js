@@ -79,6 +79,15 @@ app.post("/api/persons", (req, res) => {
 });
 
 
+app.put("/api/persons/:id", (req, res, next) => {
+    const person = {name: req.body.name, number: req.body.number}
+    Person.findByIdAndUpdate(req.params.id, person, { new: true })
+        .then(updatedPerson => {
+            console.log(updatedPerson)
+            return res.json(updatedPerson.toJSON())
+        }).catch(err => next(err));
+})
+
 app.delete("/api/persons/:id", (req, res, next) =>{
     Person.findByIdAndRemove(req.params.id)
     .then(result => {

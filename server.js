@@ -19,19 +19,15 @@ app.use(morgan(':method :url :status :response-time ms :post', {
 }));
 
 
-// const errorHandler = (error, request, response, next) => {
-//     console.error(error.message)
-//     if (error.name === 'CastError' && error.kind == 'ObjectId') {
-//       return response.status(400).send({ error: 'malformatted id' })
-//     } 
-//     next(error)
-// }
-// app.use(errorHandler)
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message)
+    if (error.name === 'CastError' && error.kind == 'ObjectId') {
+      return response.status(400).send({ error: 'malformatted id' })
+    } 
+    next(error)
+}
+app.use(errorHandler)
 
-// const unknownEndpoint = (req, res) => {
-//     res.status(404).send({ error: 'unknown endpoint' })
-// }
-// app.use(unknownEndpoint);
 
 app.get("/info", (req, res) => {
     Person.find({}).then(response => {
@@ -39,13 +35,12 @@ app.get("/info", (req, res) => {
     })
 })
 
+
 app.get("/api/persons", (req, res) => {
     Person.find({}).then(result => {
         res.json(result.map(person => person.toJSON()));
     });  
 });
-
-
 
 
 app.get("/api/persons/:id", (req, res) => {
@@ -60,6 +55,7 @@ app.get("/api/persons/:id", (req, res) => {
         res.status(400).send({ error: 'malformatted id' })
       })
 })
+
 
 app.post("/api/persons", (req, res) => {
     const rndNumber = Math.floor(Math.random()*100000);
@@ -83,15 +79,19 @@ app.post("/api/persons", (req, res) => {
 });
 
 
-app.delete("/api/persons/:id", (req, res) =>{
+app.delete("/api/persons/:id", (req, res, next) =>{
     Person.findByIdAndRemove(req.params.id)
     .then(result => {
       res.status(204).end()
     })
-    .catch(error => res.status(502).send({err: error}));
+    .catch(error => next(error));
 })
 
 
+const unknownEndpoint = (req, res) => {
+    res.status(404).send({ error: 'unknown endpoint' })
+}
+app.use(unknownEndpoint);
 
 
 app.listen(port, () => {

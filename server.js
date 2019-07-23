@@ -4,7 +4,6 @@ const app = express();
 const morgan = require('morgan');
 const bodyPareser = require('body-parser');
 const cors = require('cors');
-const mongoose = require('mongoose')
 const Person = require('./models/person');
 
 const port = process.env.PORT;
@@ -62,9 +61,9 @@ app.post("/api/persons", (req, res) => {
     const body = req.body;
     body.id = rndNumber;
 
-    if(!body.name.length || !body.number.length){
-        return res.status(400).json({err: 'content missing'});
-    }else {
+    if(body.name.length <3 || body.number.length <8){
+        return res.status(403).json({err: 'name or number is too short to be valid'});
+    }else{
         Person.find({}).then(result => {
             if(result.find((person) => person.name == body.name)){
                 res.status(502).json({err: "Person is already found"});

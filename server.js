@@ -4,7 +4,6 @@ const app = express();
 const morgan = require('morgan');
 const bodyPareser = require('body-parser');
 const cors = require('cors');
-const mongoose = require('mongoose')
 const Person = require('./models/person');
 
 const port = process.env.PORT;
